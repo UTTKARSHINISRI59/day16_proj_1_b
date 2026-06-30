@@ -101,3 +101,4 @@ const getSinglePost=async(req,res)=>{
 
 }
 
+module.exports={createPost,getAllPost,getMyPost,getSinglePost};
