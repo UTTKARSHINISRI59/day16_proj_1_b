@@ -7,8 +7,8 @@
 const Post=require("../models/Post");
 const createPost=async(req,res)=>{
     try{
-        const {title,description}=req.body;
-        if(!title||!description){
+        const {title,content}=req.body;
+        if(!title||!content){
             return res.status(400).json({
                 success:false,
                 message:"title and content are required"
@@ -44,7 +44,7 @@ const getAllPost =async(req,res)=>{
     catch(err){
         res.status(500).json({
             success:false,
-            message:"unable tyo fetch posts",
+            message:"unable to fetch posts",
             error:err.message
         });
     }
@@ -101,4 +101,48 @@ const getSinglePost=async(req,res)=>{
 
 }
 
-module.exports={createPost,getAllPost,getMyPost,getSinglePost};
+const updatePost=async(req,res)=>{
+    try{
+        const {id}=req.params;
+        const {title,content}=req.body;
+
+        let post=await Post.findById(id);
+        if(!post){
+            return res.status(401).json({
+                success:false,
+                message:"post not found"
+            })
+        }
+
+        if(post.user.toString() !==req.user._id.toString()){
+            return res.status(403).json({
+                success:false,
+                message:"you can only update your own post"
+            });
+        }
+
+        post.title=title || post.title;
+        post.content=content || post.content;
+        await post.save();
+
+        res.status(200).json({
+            success:true,
+            message:"updated successfully",
+            post
+
+        })
+
+
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({
+            success:false,
+            message:"unable to update post",
+            error:err.message
+        })
+    }
+};
+
+
+module.exports={createPost,getAllPost,getMyPost,getSinglePost,updatePost};

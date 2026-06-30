@@ -2,7 +2,7 @@ const User=require ("../models/User");
 const jwt=require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
-const register=async()=>{
+const register=async(req,res)=>{
     try{
         const {name,email,password}=req.body;
         const oldUser=await User.findOne({email});
