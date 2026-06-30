@@ -18,7 +18,7 @@ const authMiddleware= async(req,res,next)=>{
         let token=authHeader.split(" ")[1];
         const decoded = jwt.verify(token.process.env.SECRET_KEY);
 
-        const user=await User.findById({id:decoded.id});
+        const user=await User.findById(decoded.id).select("password");
         //without password...
         if (!user){
             return res.status(401).json({
@@ -41,3 +41,5 @@ const authMiddleware= async(req,res,next)=>{
     }
 };
 
+
+module.exports=authMiddleware;

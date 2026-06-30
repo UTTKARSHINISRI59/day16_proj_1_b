@@ -1,4 +1,4 @@
-const User=requrie ("../models/User");
+const User=require ("../models/User");
 const jwt=require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
@@ -26,15 +26,57 @@ const register=async()=>{
     }
 };
 
-const login=()=>{
+const login=async(req,res)=>{
     try{
-        const {name,email,password}=requestAnimationFrame.body;
-        const oldUser= 
+        const {email,password}=req.body;
+        const user= await User.findOne({email});
+        if (!user){
+            return res.status(401).json({
+                success:false,
+                message:"invalid email"
+            });
+        }
+        const isMatch= await bcrypt.compare(password,user.password);
+        if(!isMatch){
+            return res.status(401).json({
+                success:false,
+                message:"invalid password"
+            });
+        }
+        //payload,key,expire 
+        const token = jwt.sign({
+            id:user._id,email:user.email
+        },process.env.SECRET_KEY,{expiresIn:"1d"})
+
+        res.json({
+            success:true,
+            message:"login success",
+            token,
+            data:user
+        })
     }
+    catch(err){
+        res.status(500).json({
+            succe4ss:false,
+            message:"unable to login",
+            error:error
+        });
+    }    
 }
 
-const profile=()=>{};
+const profile=(req,res)=>{
+    res.json({
+        success:true,
+        message:"profile fetched",
+        user:req.user
+    })
+};
 
-const logout=()=>{};
+const logout=(req,res)=>{
+    res.json({
+        success:true,
+        message:"logout successfully"
+    })
+};
 
 module.exports={register,login,profile,logout};
